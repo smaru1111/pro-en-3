@@ -20,6 +20,7 @@ public:
     void mainLoop();
     static char getKeyChar();
     static int signum(int a);
+    void checkGameFinish();
 };
 
 class Map
@@ -105,16 +106,22 @@ void Game::mainLoop()
     while (true)
     {
         turn();
+        checkGameFinish();
     }
 }
 
 void Game::turn()
 {
-
     player->hp += 30;
     player->action();
-    monster1->action();
-    monster2->action();
+    if (monster1->hp > 0)
+    {
+        monster1->action();
+    }
+    if (monster2->hp > 0)
+    {
+        monster2->action();
+    }
     print();
 }
 
@@ -134,6 +141,20 @@ int Game::signum(int a)
         return 1;
     else
         return 0;
+}
+
+void Game::checkGameFinish()
+{
+    if (player->hp <= 0)
+    {
+        cout << "Game Over: Player's HP reached 0." << endl;
+        exit(0);
+    }
+    if (player->x == Map::XSIZE - 2 && player->y == Map::YSIZE - 2)
+    {
+        cout << "Game Over: Player reached the goal." << endl;
+        exit(0);
+    }
 }
 
 Map::Map(Game *game_)
@@ -321,13 +342,16 @@ Monster::Monster(Game *game_, int x_, int y_)
 
 void Monster::print()
 {
-    cout << "Monster : (" << x << "," << y << ") "
-         << hp << endl;
+    if (hp > 0)
+    {
+        cout << "Monster : (" << x << "," << y << ") "
+             << hp << endl;
+    }
 }
 
 bool Monster::cellPrint(int x_, int y_)
 {
-    if ((x_ == x) && (y_ == y))
+    if ((x_ == x) && (y_ == y) && hp > 0)
     {
         cout << 'M' << ' ';
         return true;
